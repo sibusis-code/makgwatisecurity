@@ -1,0 +1,10 @@
+# Protect admin directory
+Options -Indexes
+<Files "config.php">
+    Order allow,deny
+    Deny from all
+</Files>
+<Files "auth.php">
+    Order allow,deny
+    Deny from all
+</Files>
