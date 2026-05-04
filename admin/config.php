@@ -20,6 +20,8 @@ define('ALLOWED_VIDEO_EXTS', ['mp4', 'mov', 'webm']);
 $GALLERY_CATEGORIES = [
     'Corporate Events'      => 'vip/CorporateEvents',
     'Private Clients'       => 'vip/gallery/private-clients',
+    'Private Assignments'   => 'vip/private-assignments',
+    'VIP Portfolio'         => 'vip',
     'Secure Transportation' => 'vip/gallery/secure-transport',
     'VIP Transportation'    => 'vip/gallery/vip-transport',
     'Special Assignments'   => 'vip/gallery/special-assignments',
