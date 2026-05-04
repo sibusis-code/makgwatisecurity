@@ -12,7 +12,6 @@ $gallery_categories = [
     'Corporate Events'      => 'vip/CorporateEvents',
     'Private Clients'       => 'vip/gallery/private-clients',
     'Private Assignments'   => 'vip/private-assignments',
-    'VIP Portfolio'         => 'vip',
     'Secure Transportation' => 'vip/gallery/secure-transport',
     'VIP Transportation'    => 'vip/gallery/vip-transport',
     'Special Assignments'   => 'vip/gallery/special-assignments',
@@ -26,6 +25,8 @@ $gallery_categories = [
 
 // Video folders: display label => folder path
 $video_folders = [
+    'Corporate Event Videos'   => 'vip/CorporateEvents',
+    'Private Assignment Videos'=> 'vip/private-assignments',
     'Private Escort Projects' => 'vip/PrivateEscort',
     'Shooting Range Videos'   => 'vip/ShootingRange',
 ];
