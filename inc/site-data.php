@@ -13,7 +13,7 @@ function site_settings(): array {
     static $settings = null;
     if ($settings !== null) return $settings;
     $defaults = [
-        'whatsapp_number'       => '27790260098',
+        'whatsapp_number'       => '27678607739',
         'phone_head_office'     => '015 001 2295',
         'head_office_contact'   => 'Ally',
         'psira_number'          => '4464345',
@@ -98,4 +98,27 @@ function wa_link(string $number, string $text = ''): string {
     $url = 'https://wa.me/' . preg_replace('/\D/', '', $number);
     if ($text !== '') $url .= '?text=' . rawurlencode($text);
     return $url;
+}
+
+/**
+ * Render a stored number for display: '27678607739' becomes '067 860 7739'.
+ *
+ * Numbers are stored in international form because that is what wa.me needs,
+ * but South African visitors expect to read the local form. Anything that
+ * does not look like a mobile number (a landline typed with spaces, say) is
+ * returned unchanged rather than mangled.
+ */
+function format_phone(string $number): string {
+    $digits = preg_replace('/\D/', '', $number);
+    if ($digits === '') return $number;
+
+    // 27XXXXXXXXX -> 0XXXXXXXXX
+    if (str_starts_with($digits, '27') && strlen($digits) === 11) {
+        $digits = '0' . substr($digits, 2);
+    }
+    // Group a 10-digit local number as 0XX XXX XXXX.
+    if (strlen($digits) === 10) {
+        return substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
+    }
+    return $number;
 }

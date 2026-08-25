@@ -68,7 +68,7 @@ $whatsapp    = setting('whatsapp_number');
                     <?php if ($head_office): ?>
                         <div class="footer-contact-item"><i class="fas fa-user"></i> <?= htmlspecialchars($head_office['contact_person']) ?></div>
                         <?php if ($head_office['phone']): ?><div class="footer-contact-item"><i class="fas fa-phone"></i><a href="tel:<?= htmlspecialchars(preg_replace('/\s+/', '', $head_office['phone'])) ?>"><?= htmlspecialchars($head_office['phone']) ?></a></div><?php endif; ?>
-                        <?php if ($head_office['whatsapp']): ?><div class="footer-contact-item"><i class="fab fa-whatsapp"></i><a href="<?= htmlspecialchars(wa_link($head_office['whatsapp'])) ?>" target="_blank">079 026 0098</a></div><?php endif; ?>
+                        <?php if ($head_office['whatsapp']): ?><div class="footer-contact-item"><i class="fab fa-whatsapp"></i><a href="<?= htmlspecialchars(wa_link($head_office['whatsapp'])) ?>" target="_blank"><?= htmlspecialchars(format_phone($head_office['whatsapp'])) ?></a></div><?php endif; ?>
                     <?php endif; ?>
                     <div class="footer-contact-item" style="margin-top:0.5rem;"><i class="fas fa-certificate"></i> PSIRA: <?= htmlspecialchars(setting('psira_number')) ?></div>
                     <div class="footer-contact-item"><i class="fas fa-award"></i> SAPS: <?= htmlspecialchars(setting('saps_number')) ?></div>
@@ -131,6 +131,12 @@ $whatsapp    = setting('whatsapp_number');
         </button>
     </div>
 
-    <script>window.__FAQS__ = <?= get_faqs_json() ?>;</script>
+    <script>
+    window.__FAQS__ = <?= get_faqs_json() ?>;
+    // The WhatsApp destination for every enquiry form and the chatbot. Comes
+    // from the CMS (Site Settings -> whatsapp_number) so the client can change
+    // where leads land without a code deploy.
+    window.__WA_NUMBER__ = <?= json_encode(preg_replace('/\D/', '', $whatsapp)) ?>;
+    </script>
     <script src="script.js"></script>
     <script src="chatbot.js"></script>

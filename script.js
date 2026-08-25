@@ -6,7 +6,10 @@
 (function () {
     'use strict';
 
-    const WA_NUMBER = '27790260098';
+    // Where enquiry forms deliver. Injected by inc/footer.php from the CMS
+    // setting `whatsapp_number`, so changing it is a CMS edit, not a deploy.
+    // The literal is only a safety net for a page rendered without the footer.
+    const WA_NUMBER = (window.__WA_NUMBER__ || '27678607739');
 
     // ============================================================
     // MOBILE NAVIGATION

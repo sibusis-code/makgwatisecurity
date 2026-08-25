@@ -1,12 +1,15 @@
 /**
  * Makgwati Security — Smart FAQ Chatbot + Lead Capture
- * All leads delivered via WhatsApp to 27790260098 (Ally)
+ * Leads are delivered via WhatsApp to the number set in the CMS
+ * (Site Settings -> whatsapp_number), injected by inc/footer.php.
  */
 
 (function () {
     'use strict';
 
-    const WA_NUMBER = '27790260098';
+    // Same source as script.js — see the note there. The literal is only a
+    // safety net for a page rendered without the footer.
+    const WA_NUMBER = (window.__WA_NUMBER__ || '27678607739');
 
     const faqs = [
         {
@@ -23,7 +26,7 @@
         },
         {
             keywords: ['location', 'where', 'branch', 'office', 'area', 'province', 'limpopo', 'north west'],
-            answer: '📍 <strong>Our Branch Locations:</strong><br>• <strong>Head Office</strong> — Ally: 079 026 0098<br>• <strong>Jane Furse</strong> — Beauty: 082 227 1165<br>• <strong>Driekop</strong> — Kgaugelo: 076 953 7244<br>• <strong>Monsterlus</strong> — Kamo: 082 072 4878<br>• <strong>Makeketela</strong> — Charity: 082 284 7799<br>• <strong>Mogwase</strong> — David: 070 624 7673 / 079 716 5314<br><br><a href="contact.html" style="color:var(--gold);">View all branch details →</a>'
+            answer: '📍 <strong>Our Branch Locations:</strong><br>• <strong>Head Office</strong> — Ally: 067 860 7739<br>• <strong>Jane Furse</strong> — Beauty: 082 227 1165<br>• <strong>Driekop</strong> — Kgaugelo: 076 953 7244<br>• <strong>Monsterlus</strong> — Kamo: 082 072 4878<br>• <strong>Makeketela</strong> — Charity: 082 284 7799<br>• <strong>Mogwase</strong> — David: 070 624 7673 / 079 716 5314<br><br><a href="contact.html" style="color:var(--gold);">View all branch details →</a>'
         },
         {
             keywords: ['firearm', 'gun', 'handgun', 'rifle', 'shotgun', 'weapon', 'competency', 'pistol'],
@@ -39,7 +42,7 @@
         },
         {
             keywords: ['contact', 'call', 'phone', 'number', 'reach', 'email', 'speak', 'talk'],
-            answer: '📞 <strong>Contact Our Head Office:</strong><br>• WhatsApp: <strong>079 026 0098</strong> (Ally)<br>• Phone: <strong>015 001 2295</strong><br><br>Or <a href="contact.html" style="color:var(--gold);">visit our Contact page</a> to find your nearest branch (6 locations).'
+            answer: '📞 <strong>Contact Our Head Office:</strong><br>• WhatsApp: <strong>067 860 7739</strong> (Ally)<br>• Phone: <strong>015 001 2295</strong><br><br>Or <a href="contact.html" style="color:var(--gold);">visit our Contact page</a> to find your nearest branch (6 locations).'
         },
         {
             keywords: ['cit', 'cash in transit', 'cash transit', 'money transport', 'cash'],
@@ -59,7 +62,7 @@
         }
     ];
 
-    const defaultAnswer = '👋 Thanks for reaching out! I\'m not sure I understood your question. Try one of the quick buttons below, or describe what you need and I\'ll do my best to help.<br><br>Alternatively, WhatsApp us directly at <strong>079 026 0098</strong>.';
+    const defaultAnswer = '👋 Thanks for reaching out! I\'m not sure I understood your question. Try one of the quick buttons below, or describe what you need and I\'ll do my best to help.<br><br>Alternatively, WhatsApp us directly at <strong>067 860 7739</strong>.';
 
     let leadFormVisible = false;
     let badgeTimer;
