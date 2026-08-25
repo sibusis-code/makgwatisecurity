@@ -2,6 +2,11 @@
 # Live MySQL credentials. Never commit. Use .env.example as the template.
 .env
 
+# FTP / deployment credentials.
+deploy.env
+deploy.*.env
+*.ftp
+
 # Legacy single-admin credential file. Superseded by the admin_users table;
 # kept on disk only so old installs don't break. Contains a password hash.
 admin/data/auth.json
@@ -21,3 +26,7 @@ images/img9_backup_*
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# One-off deployment diagnostic. Kept local: it embeds an access token,
+# and the repo is public.
+server-check.php
