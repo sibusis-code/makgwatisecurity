@@ -31,7 +31,7 @@
         },
         {
             keywords: ['vip', 'protection', 'bodyguard', 'close', 'escort', 'executive', 'celebrity'],
-            answer: '⭐ <strong>VIP / Close Protection:</strong><br>We provide discreet, professional close protection for executives, politicians, celebrities, and high-net-worth individuals.<br><br><strong>Services include:</strong><br>• Personal close protection officers<br>• Secure transportation<br>• Advance security sweeps<br>• Multi-team coordination<br>• 24/7 coverage available<br><br>View our <a href="vipprotection.html" style="color:var(--gold);">VIP gallery and assignment videos →</a>'
+            answer: '⭐ <strong>VIP / Close Protection:</strong><br>We provide discreet, professional close protection for executives, politicians, celebrities, and high-net-worth individuals.<br><br><strong>Services include:</strong><br>• Personal close protection officers<br>• Secure transportation<br>• Advance security sweeps<br>• Multi-team coordination<br>• 24/7 coverage available<br><br>View our <a href="vipprotection.php" style="color:var(--gold);">VIP gallery and assignment videos →</a>'
         },
         {
             keywords: ['enroll', 'register', 'join', 'sign up', 'how to apply', 'start training', 'apply'],
@@ -64,10 +64,27 @@
     let leadFormVisible = false;
     let badgeTimer;
 
+    // Pages converted to PHP embed window.__FAQS__ (loaded from the CMS
+    // database, keywords stored as a comma-separated string). Fall back to
+    // the hardcoded `faqs` array above on any page that hasn't been
+    // converted yet, so the chatbot never breaks.
+    function getActiveFaqs() {
+        if (Array.isArray(window.__FAQS__) && window.__FAQS__.length) {
+            return window.__FAQS__.map(function (f) {
+                return {
+                    keywords: (f.keywords || '').split(',').map(function (k) { return k.trim(); }).filter(Boolean),
+                    answer: f.answer_html
+                };
+            });
+        }
+        return faqs;
+    }
+
     function getAnswer(userInput) {
         const input = userInput.toLowerCase();
-        for (let i = 0; i < faqs.length; i++) {
-            const faq = faqs[i];
+        const activeFaqs = getActiveFaqs();
+        for (let i = 0; i < activeFaqs.length; i++) {
+            const faq = activeFaqs[i];
             for (let j = 0; j < faq.keywords.length; j++) {
                 if (input.includes(faq.keywords[j])) {
                     return faq.answer;
@@ -190,6 +207,19 @@
                     appendMessage('⚠️ Please enter your <strong>name and phone number</strong> so we can contact you.', 'bot');
                     return;
                 }
+
+                try {
+                    const leadData = new FormData();
+                    leadData.append('source', 'chatbot');
+                    leadData.append('name', name.trim());
+                    leadData.append('phone', phone.trim());
+                    leadData.append('service', service.trim());
+                    if (navigator.sendBeacon) {
+                        navigator.sendBeacon('lead.php', leadData);
+                    } else {
+                        fetch('lead.php', { method: 'POST', body: leadData, keepalive: true });
+                    }
+                } catch (e) { /* ignore — WhatsApp send must not be blocked by this */ }
 
                 const msg = 'Hi%20Makgwati%20Security!%0A%0AI%20chatted%20with%20your%20AI%20assistant%20and%20would%20like%20to%20learn%20more.%0A%0AName%3A%20' +
                     encodeURIComponent(name) +

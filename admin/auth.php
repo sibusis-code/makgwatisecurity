@@ -4,6 +4,8 @@
  */
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/media.php';
 
 function mgw_session_start(): void {
     if (session_status() === PHP_SESSION_NONE) {
@@ -15,8 +17,16 @@ function mgw_session_start(): void {
     }
 }
 
+/**
+ * True once at least one admin_users row exists. Multi-admin, DB-backed
+ * (replaces the old single-file admin/data/auth.json).
+ */
 function is_setup_done(): bool {
-    return file_exists(AUTH_FILE);
+    try {
+        return (int) db()->query('SELECT COUNT(*) FROM admin_users')->fetchColumn() > 0;
+    } catch (Throwable $e) {
+        return false;
+    }
 }
 
 function is_logged_in(): bool {
@@ -59,15 +69,18 @@ function safe_filename(string $name): string {
  */
 function validate_upload(array $file, string $type = 'image'): array {
     if ($file['error'] !== UPLOAD_ERR_OK) {
-        return ['ok' => false, 'msg' => 'Upload error code: ' . $file['error']];
+        return ['ok' => false, 'msg' => upload_error_message((int) $file['error'], $type)];
     }
-    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $ext   = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $limit = effective_limit($type);
     if ($type === 'image') {
         if (!in_array($ext, ALLOWED_IMAGE_EXTS, true)) {
             return ['ok' => false, 'msg' => 'Only JPG, PNG, or WEBP images are allowed.'];
         }
-        if ($file['size'] > MAX_IMAGE_SIZE) {
-            return ['ok' => false, 'msg' => 'Image must be under 10 MB.'];
+        if ($file['size'] > $limit) {
+            return ['ok' => false, 'msg' =>
+                'That image is ' . format_bytes((int) $file['size']) . '. The maximum is '
+                . format_bytes($limit) . '.'];
         }
         // Verify it is actually an image
         if (!@getimagesize($file['tmp_name'])) {
@@ -77,8 +90,12 @@ function validate_upload(array $file, string $type = 'image'): array {
         if (!in_array($ext, ALLOWED_VIDEO_EXTS, true)) {
             return ['ok' => false, 'msg' => 'Only MP4, MOV, or WEBM videos are allowed.'];
         }
-        if ($file['size'] > MAX_VIDEO_SIZE) {
-            return ['ok' => false, 'msg' => 'Video must be under 300 MB.'];
+        if ($file['size'] > $limit) {
+            return ['ok' => false, 'msg' =>
+                'That video is ' . format_bytes((int) $file['size']) . '. The maximum is '
+                . format_bytes($limit) . '. Please compress it first — a free tool like '
+                . 'HandBrake or the "Compress Video" option on your phone will shrink it '
+                . 'without a visible loss in quality.'];
         }
         // Basic MIME check for video
         $finfo = finfo_open(FILEINFO_MIME_TYPE);

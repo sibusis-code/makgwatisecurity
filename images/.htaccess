@@ -1,0 +1,54 @@
+# Makgwati Security — uploaded media only, never executable code.
+#
+# The CMS validates extensions and MIME types before writing anything here, so
+# this is defence in depth: even if a script were somehow written into this
+# folder, the server must refuse to run it.
+
+# Don't list folder contents to the public.
+Options -Indexes
+
+# Block direct access to anything executable or sensitive.
+<IfModule mod_authz_core.c>
+    # Apache 2.4
+    <FilesMatch "\.(?i:php|php3|php4|php5|php7|php8|phps|phtml|phar|pl|py|cgi|sh|bash|htaccess|htpasswd|ini|json|log)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    # Apache 2.2
+    <FilesMatch "\.(?i:php|php3|php4|php5|php7|php8|phps|phtml|phar|pl|py|cgi|sh|bash|htaccess|htpasswd|ini|json|log)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Belt and braces: turn the PHP engine off entirely for this directory.
+# Guarded by IfModule because mod_php directives are a fatal 500 on hosts
+# running PHP through FastCGI / PHP-FPM / LiteSpeed, which most cPanel
+# accounts do. If the module isn't loaded, the FilesMatch rules above stand.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+
+# Never let a handler be inherited that would execute these files.
+<IfModule mod_mime.c>
+    RemoveHandler .php .php3 .php4 .php5 .php7 .php8 .phtml .phar
+    RemoveType    .php .php3 .php4 .php5 .php7 .php8 .phtml .phar
+</IfModule>
+
+# Media is immutable once uploaded (a replaced file gets a new name), so let
+# browsers cache it hard. Cuts repeat bandwidth on a media-heavy gallery.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png  "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType video/mp4  "access plus 1 year"
+    ExpiresByType video/webm "access plus 1 year"
+</IfModule>

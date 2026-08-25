@@ -128,6 +128,25 @@
         lines.push('');
         lines.push('Please get back to me. Thank you!');
 
+        // Log the lead server-side so it isn't lost if the WhatsApp message
+        // is missed. Fire-and-forget: never blocks or breaks the WhatsApp
+        // flow, which stays the primary path even if this fails.
+        try {
+            var leadData = new FormData();
+            leadData.append('source', formId);
+            leadData.append('name', name.trim());
+            leadData.append('phone', phone.trim());
+            leadData.append('email', email.trim());
+            leadData.append('service', service.trim());
+            leadData.append('location', location.trim());
+            leadData.append('message', message.trim());
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('lead.php', leadData);
+            } else {
+                fetch('lead.php', { method: 'POST', body: leadData, keepalive: true });
+            }
+        } catch (e) { /* ignore — WhatsApp send must not be blocked by this */ }
+
         var text = encodeURIComponent(lines.join('\n'));
         window.open('https://wa.me/' + WA_NUMBER + '?text=' + text, '_blank');
 

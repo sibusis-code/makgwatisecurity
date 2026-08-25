@@ -1,0 +1,15 @@
+# Makgwati Security — block direct access to sensitive files
+<FilesMatch "^\.env">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Redirect legacy static pages to their new database-driven PHP
+# equivalents (CMS overhaul). Keeps old bookmarks and search engine
+# links working.
+RewriteEngine On
+RewriteRule ^index\.html$ /index.php [R=301,L]
+RewriteRule ^services\.html$ /services.php [R=301,L]
+RewriteRule ^training\.html$ /training.php [R=301,L]
+RewriteRule ^contact\.html$ /contact.php [R=301,L]
+RewriteRule ^vipprotection\.html$ /vipprotection.php [R=301,L]

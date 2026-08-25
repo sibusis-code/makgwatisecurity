@@ -31,12 +31,24 @@ if (!$current || !$new_pass || !$confirm) $err('All fields are required.');
 if (strlen($new_pass) < 8)               $err('New password must be at least 8 characters.');
 if ($new_pass !== $confirm)              $err('New passwords do not match.');
 
-$auth = json_decode(file_get_contents(AUTH_FILE), true);
-if (!password_verify($current, $auth['hash'] ?? '')) {
+$userId = $_SESSION['mgw_user_id'] ?? 0;
+try {
+    $stmt = db()->prepare('SELECT password_hash FROM admin_users WHERE id = :id');
+    $stmt->execute(['id' => $userId]);
+    $hash = $stmt->fetchColumn();
+} catch (Throwable $e) {
+    $err('Could not verify current password — database error.');
+}
+
+if (!$hash || !password_verify($current, $hash)) {
     $err('Current password is incorrect.');
 }
 
-$auth['hash'] = password_hash($new_pass, PASSWORD_BCRYPT);
-file_put_contents(AUTH_FILE, json_encode($auth));
+try {
+    $stmt = db()->prepare('UPDATE admin_users SET password_hash = :hash WHERE id = :id');
+    $stmt->execute(['hash' => password_hash($new_pass, PASSWORD_BCRYPT), 'id' => $userId]);
+} catch (Throwable $e) {
+    $err('Could not save new password — database error.');
+}
 
 $ok('Password changed successfully!');

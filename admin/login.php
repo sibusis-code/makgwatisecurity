@@ -14,14 +14,21 @@ if (is_logged_in()) {
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     mgw_session_start();
-    $auth     = json_decode(file_get_contents(AUTH_FILE), true);
-    $username = trim($_POST['username'] ?? '');
+    $email    = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if ($username === ($auth['username'] ?? '') && password_verify($password, $auth['hash'] ?? '')) {
+    $user = null;
+    try {
+        $stmt = db()->prepare('SELECT * FROM admin_users WHERE email = :email LIMIT 1');
+        $stmt->execute(['email' => $email]);
+        $user = $stmt->fetch() ?: null;
+    } catch (Throwable $e) { /* falls through to invalid-login below */ }
+
+    if ($user && password_verify($password, $user['password_hash'])) {
         session_regenerate_id(true);
-        $_SESSION['mgw_auth'] = true;
-        $_SESSION['mgw_user'] = $username;
+        $_SESSION['mgw_auth']    = true;
+        $_SESSION['mgw_user']    = $user['email'];
+        $_SESSION['mgw_user_id'] = (int)$user['id'];
         // Generate fresh CSRF
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
         header('Location: index.php'); exit;
@@ -83,8 +90,8 @@ input:focus{border-color:#FF6B35;box-shadow:0 0 0 3px rgba(255,107,53,.1);}
     <?php endif; ?>
 
     <form method="POST">
-        <label>Username</label>
-        <input type="text" name="username" autocomplete="username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required>
+        <label>Email</label>
+        <input type="email" name="username" autocomplete="username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required>
         <label>Password</label>
         <input type="password" name="password" autocomplete="current-password" required>
         <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> &nbsp;Sign In</button>

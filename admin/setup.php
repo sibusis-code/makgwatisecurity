@@ -7,21 +7,26 @@ if (is_setup_done()) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
+    $email    = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm  = $_POST['confirm']  ?? '';
 
-    if (!$username || !$password || !$confirm) {
+    if (!$email || !$password || !$confirm) {
         $error = 'All fields are required.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Enter a valid email address.';
     } elseif (strlen($password) < 8) {
         $error = 'Password must be at least 8 characters.';
     } elseif ($password !== $confirm) {
         $error = 'Passwords do not match.';
     } else {
-        $data = ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8'),
-                 'hash'     => password_hash($password, PASSWORD_BCRYPT)];
-        file_put_contents(AUTH_FILE, json_encode($data));
-        header('Location: login.php?setup=1'); exit;
+        try {
+            $stmt = db()->prepare('INSERT INTO admin_users (email, password_hash) VALUES (:email, :hash)');
+            $stmt->execute(['email' => $email, 'hash' => password_hash($password, PASSWORD_BCRYPT)]);
+            header('Location: login.php?setup=1'); exit;
+        } catch (Throwable $e) {
+            $error = 'Could not create account — database error. Check your MySQL connection in admin/config.php.';
+        }
     }
 }
 ?>
@@ -59,8 +64,8 @@ input:focus{border-color:#FF6B35;}
     <p class="sub">This runs once. Set your login credentials to manage the website content.</p>
     <?php if ($error): ?><div class="error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
     <form method="POST">
-        <label>Username</label>
-        <input type="text" name="username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" autocomplete="username" required>
+        <label>Email</label>
+        <input type="email" name="username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" autocomplete="username" required>
         <label>Password <small style="color:#64748b;font-weight:400">(min 8 characters)</small></label>
         <input type="password" name="password" autocomplete="new-password" required>
         <label>Confirm Password</label>

@@ -3,8 +3,15 @@
  * Makgwati Security CMS — Delete handler
  */
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/db.php';
 require_login();
 global $GALLERY_CATEGORIES, $VIDEO_FOLDERS;
+
+function delete_gallery_media_row(string $file_path): void {
+    try {
+        db()->prepare('DELETE FROM gallery_media WHERE file_path = :fp')->execute(['fp' => $file_path]);
+    } catch (Throwable $e) { /* DB not configured yet — file deletion still succeeds */ }
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: index.php'); exit;
@@ -41,6 +48,7 @@ if ($type === 'image') {
     // Ensure resolved path is within the allowed folder
     if (!$real || !$base || strpos($real, $base) !== 0) $err('File not found or access denied.');
     unlink($real);
+    delete_gallery_media_row($folder . '/' . $file);
     $ok('Photo "' . $file . '" deleted.');
 }
 
@@ -54,10 +62,7 @@ if ($type === 'video') {
     $base = realpath(SITE_ROOT . $folder);
     if (!$real || !$base || strpos($real, $base) !== 0) $err('File not found or access denied.');
     unlink($real);
-    // Remove from metadata
-    $meta = read_video_meta(SITE_ROOT . $folder);
-    $meta = array_filter($meta, fn($m) => ($m['file'] ?? '') !== $file);
-    write_video_meta(SITE_ROOT . $folder, array_values($meta));
+    delete_gallery_media_row($folder . '/' . $file);
     $ok('Video "' . $file . '" deleted.');
 }
 

@@ -1,0 +1,23 @@
+# ── Secrets ────────────────────────────────────────────────────────────
+# Live MySQL credentials. Never commit. Use .env.example as the template.
+.env
+
+# Legacy single-admin credential file. Superseded by the admin_users table;
+# kept on disk only so old installs don't break. Contains a password hash.
+admin/data/auth.json
+
+# ── Generated at runtime ───────────────────────────────────────────────
+# Rolling backups written when the logo or hero image is replaced.
+images/logo_backup_*
+images/img9_backup_*
+
+# Temp files from the image compression pass (cleaned up automatically,
+# but never worth committing if one is left behind by a crash).
+*.tmp
+
+# ── Editor / OS noise ──────────────────────────────────────────────────
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store

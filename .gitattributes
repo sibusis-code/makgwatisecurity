@@ -1,0 +1,16 @@
+# The site is deployed to Linux (xneelo). Keep text files LF everywhere so a
+# Windows checkout does not push CRLF up to the server — Apache in particular
+# is fussy about .htaccess line endings.
+* text=auto eol=lf
+
+# Media and documents are binary; never let git rewrite their bytes.
+*.jpg  binary
+*.jpeg binary
+*.png  binary
+*.webp binary
+*.gif  binary
+*.mp4  binary
+*.mov  binary
+*.webm binary
+*.pdf  binary
+*.ico  binary
